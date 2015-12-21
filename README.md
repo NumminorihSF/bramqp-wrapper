@@ -11,6 +11,8 @@ Dependencies:
 
     bramqp
  
+*Be careful!* not implemented usage of noWait flag.
+
 
 # Usage
 
@@ -433,7 +435,7 @@ Channel
 **Extends:** <code>EventEmitter</code>  
 
 * [Channel](#Channel) ⇐ <code>EventEmitter</code>
-    * [new Channel(client, id, id)](#new_Channel_new)
+    * [new Channel(client, id)](#new_Channel_new)
     * [.open(callback)](#Channel+open)
     * [.close(callback)](#Channel+close)
     * [.flow(active, callback)](#Channel+flow)
@@ -444,7 +446,7 @@ Channel
     * [.$isConfirmMode()](#Channel+$isConfirmMode) ⇒ <code>Boolean</code>
 
 <a name="new_Channel_new"></a>
-### new Channel(client, id, id)
+### new Channel(client, id)
 Work with channels.
 
 The channel class provides methods for a client to establish a channel to a server
@@ -454,7 +456,6 @@ and for both peers to operate the channel thereafter.
 | Param | Type | Description |
 | --- | --- | --- |
 | client | <code>BRAMQPClient</code> | Client object that returns from bramqp#openAMQPCommunication() method. |
-| id | <code>Number</code> | Channel id. |
 | id | <code>Number</code> | Channel id. |
 
 <a name="Channel+open"></a>

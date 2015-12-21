@@ -12,7 +12,6 @@ var RabbitRouteError = require('./rabbit_route_error');
  * @extends EventEmitter
  * @param {BRAMQPClient} client Client object that returns from bramqp#openAMQPCommunication() method.
  * @param {Number} id Channel id.
- * @param {Number} id Channel id.
  * @return {Channel}
  * @constructor
  */
