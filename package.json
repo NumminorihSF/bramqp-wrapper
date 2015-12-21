@@ -1,0 +1,27 @@
+{
+  "name": "bramqp-wrapper",
+  "version": "0.9.0",
+  "description": "Wrapper of bramqp lib for some easy work with protocol. Has a connection pool.",
+  "dependencies": {
+    "bramqp": "^0.3.7"
+  },
+  "scripts": {},
+  "main": "lib/client",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NumminorihSF/bramqp-wrapper.git"
+  },
+  "keywords": [
+    "publish",
+    "subscribe",
+    "amqp",
+    "bramqp",
+    "rabbitmq"
+  ],
+  "author": "Konstantine Petryaev <numminorihsf@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/NumminorihSF/bramqp-wrapper/issues"
+  },
+  "homepage": "https://github.com/NumminorihSF/bramqp-wrapper#readme"
+}
