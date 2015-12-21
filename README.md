@@ -14,7 +14,7 @@ Dependencies:
 
 # Usage
 
-Simple example:
+Example:
 
 ```js
 
