@@ -18,6 +18,7 @@ var EE = require('events').EventEmitter;
  * @param {Channel} channel Channel object (should be opened).
  * @return {TX}
  * @constructor
+ * @class Tx
  */
 function TX(client, channel){
   EE.call(this);
@@ -36,6 +37,7 @@ require('util').inherits(TX, EE);
  * The client must use this method at least once on a channel before using the Commit or
  * Rollback methods.
  * @param {Function} callback
+ * @method select
  */
 TX.prototype.select = function(callback){
   if (!(typeof callback === 'function')){
@@ -56,6 +58,7 @@ TX.prototype.select = function(callback){
  * * The client MUST NOT use the Commit method on non-transacted channels.
  * Error code: precondition-failed
  * @param {Function} callback
+ * @method commit
  */
 TX.prototype.commit = function(callback){
   if (!(typeof callback === 'function')){
@@ -78,6 +81,7 @@ TX.prototype.commit = function(callback){
  * * The client MUST NOT use the Rollback method on non-transacted channels.
  * Error code: precondition-failed
  * @param callback
+ * @method rollback
  */
 TX.prototype.rollback = function(callback){
   if (!(typeof callback === 'function')){

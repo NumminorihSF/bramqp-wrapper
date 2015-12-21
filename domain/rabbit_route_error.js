@@ -1,5 +1,6 @@
 /**
- *
+ * @class RabbitRouteError
+ * @extends Error
  * @param {Object} errorObject Object, that RabbitMq returns.
  * @return {RabbitRouteError}
  * @constructor

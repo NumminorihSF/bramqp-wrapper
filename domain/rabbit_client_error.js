@@ -1,5 +1,6 @@
 /**
- *
+ * @class RabbitClientError
+ * @extends Error
  * @param {Object} errorObject Object, that RabbitMq returns.
  * @return {RabbitClientError}
  * @constructor

@@ -93,6 +93,7 @@ require('util').inherits(Exchange, EE);
  * @param {Object} [options.arguments={}] A set of arguments for the declaration.
  *    The syntax and semantics of these arguments depends on the server implementation.
  * @param {Function} callback
+ * @method declare
  */
 Exchange.prototype.declare = function(exchange, type, options, callback){
   options = options || {};
@@ -143,6 +144,7 @@ Exchange.prototype.declare = function(exchange, type, options, callback){
  *    The client should not wait for a reply method.
  *    If the server could not complete the method it will raise a channel or connection exception.
  * @param {Function} callback
+ * @method delete
  */
 Exchange.prototype['delete'] = function(exchange, options, callback){
   options = options || {};
@@ -190,6 +192,7 @@ Exchange.prototype['delete'] = function(exchange, options, callback){
  * @param {Object} [options.arguments={}] A set of arguments for the declaration.
  *    The syntax and semantics of these arguments depends on the server implementation.
  * @param {Function} callback
+ * @method bind
  */
 Exchange.prototype.bind = function(destination, source, routingKey, options, callback){
   options = options || {};
@@ -228,6 +231,7 @@ Exchange.prototype.bind = function(destination, source, routingKey, options, cal
  * @param {Object} [options.arguments={}] A set of arguments for the declaration.
  *    The syntax and semantics of these arguments depends on the server implementation.
  * @param {Function} callback
+ * @method unbind
  */
 Exchange.prototype.unbind = function(destination, source, routingKey, options, callback){
   options = options || {};

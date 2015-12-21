@@ -83,6 +83,7 @@ require('util').inherits(Basic, EE);
  *    per-consumer (for new consumers on the channel; existing ones being unaffected)
  *    and global=true to mean that the QoS settings should apply per-channel.
  * @param {Function} callback
+ * @method qos
  */
 Basic.prototype.qos = function(options, callback){
   options = options || {};
@@ -139,6 +140,7 @@ Basic.prototype.qos = function(options, callback){
  *    4th arg is options of message.
  * @param {Function} callback This function will be spawned after subscribe to queue. 1st arg is error if is.
  *    2nd - consumerTag.
+ * @method consume
  */
 Basic.prototype.consume = function(queueName, options, subscriber, callback){
   options = options || {};
@@ -207,6 +209,7 @@ Basic.prototype.consume = function(queueName, options, subscriber, callback){
  *    If the server could not complete the method it will raise a channel or
  *    connection exception.
  * @param {Function} callback
+ * @method cancel
  */
 Basic.prototype.cancel = function(consumerTag, options, callback){
   callback = arguments[arguments.length-1];
@@ -272,6 +275,7 @@ Basic.prototype.cancel = function(consumerTag, options, callback){
  * @param {String} [options.contentEncoding] MIME content encoding.
  * @param {Object} [headers] User headers to message.
  * @param {Function} [callback]
+ * @method publish
  */
 Basic.prototype.publish = function(exchange, routingKey, body, options, headers, callback){
   callback = arguments[arguments.length-1];
@@ -329,6 +333,7 @@ Basic.prototype.publish = function(exchange, routingKey, body, options, headers,
  *    May be empty, meaning the default exchange.
  * @param {String} routingKey Specifies the routing key name specified when the message was published.
  * @param {Function} callback
+ * @method return
  */
 Basic.prototype['return'] = function(replyCode, replyText, exchange, routingKey, callback){
   callback = arguments[arguments.length-1];
@@ -359,6 +364,7 @@ Basic.prototype['return'] = function(replyCode, replyText, exchange, routingKey,
  *    3rd arg is headers of messages.
  *    4th arg is arguments of message.
  *    5th arg is options of message.
+ * @method get
  */
 Basic.prototype.get = function(queue, options, callback){
   callback = arguments[arguments.length-1];
@@ -426,6 +432,7 @@ Basic.prototype.get = function(queue, options, callback){
  *    On a transacted channel, this check MUST be done immediately and not delayed until
  *    a Tx.Commit. Error code: precondition-failed
  * @param {Function} callback
+ * @method ack
  */
 Basic.prototype.ack = function(deliveryTag, options, callback){
   callback = arguments[arguments.length-1];
@@ -470,6 +477,7 @@ Basic.prototype.ack = function(deliveryTag, options, callback){
  *    The server MAY use more sophisticated tracking to hold the message on
  *    the queue and redeliver it to the same client at a later stage.
  * @param {Function} callback
+ * @method reject
  */
 Basic.prototype.reject = function(deliveryTag, options, callback){
   callback = arguments[arguments.length-1];
@@ -497,6 +505,7 @@ Basic.prototype.reject = function(deliveryTag, options, callback){
  *    If this bit is 1, the server will attempt to requeue the message,
  *    potentially then delivering it to an alternative subscriber.
  * @param {Function} callback
+ * @method recoverAsync
  */
 Basic.prototype.recoverAsync = function(options, callback){
   callback = arguments[arguments.length-1];
@@ -526,6 +535,7 @@ Basic.prototype.recoverAsync = function(options, callback){
  *    If this bit is 1, the server will attempt to requeue the message,
  *    potentially then delivering it to an alternative subscriber.
  * @param {Function} callback
+ * @method recover
  */
 Basic.prototype.recover = function(options, callback){
   callback = arguments[arguments.length-1];
@@ -589,6 +599,7 @@ Basic.prototype.recover = function(options, callback){
  *    The server MAY use more sophisticated tracking to hold the message on the
  *    queue and redeliver it to the same client at a later stage.
  * @param {Function} callback
+ * @method nack
  */
 Basic.prototype.nack = function(deliveryTag, options, callback){
   callback = arguments[arguments.length-1];
@@ -604,11 +615,18 @@ Basic.prototype.nack = function(deliveryTag, options, callback){
   this.client.nack(deliveryTag, multiple, requeue, cb(callback));
 };
 
-
+/**
+ * @method setPublishCallback
+ * @param {String} string
+ */
 Basic.prototype.$setPublishCallback = function(string){
   this.publishCallbackMethod = string.toLowerCase();
 };
 
+/**
+ * @method $setTimeout
+ * @param {Number} t
+ */
 Basic.prototype.$setTimeout = function(t){
   this.timeout = Number(t) || DEFAULT_WAIT_TIMEOUT;
 };

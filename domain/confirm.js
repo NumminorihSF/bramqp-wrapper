@@ -43,6 +43,7 @@ require('util').inherits(Confirm, EE);
  *    The client should not wait for a reply method.
  *    If the server could not complete the method it will raise a channel or connection exception.
  * @param {Function} callback
+ * @method select
  */
 Confirm.prototype.select = function(options, callback){
   options = options || {};

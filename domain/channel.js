@@ -50,6 +50,7 @@ require('util').inherits(Channel, EE);
  * This method opens a channel to the server.
  * * The client MUST NOT use this method on an already-opened channel. Error code: channel-error
  * @param {Function} callback on callback - 1st argument is error.
+ * @method open
  */
 Channel.prototype.open = function(callback){
   this.confirmMode = false;
@@ -75,6 +76,7 @@ Channel.prototype.open = function(callback){
  * * After sending this method, any received methods except Close and Close-OK MUST
  * be discarded. The response to receiving a Close after sending Close must be to send Close-Ok.
  * @param {Function} callback on callback - 1st argument is error.
+ * @method close
  */
 Channel.prototype.close = function(callback){
   this.client.channel.close(this.id, (err) => {
@@ -113,6 +115,7 @@ Channel.prototype.close = function(callback){
  * @param {Boolean} active If `true`, the peer starts sending content frames. If `false`, the peer stops sending content frames.
  * @param {Function} callback on callback - 1st argument is error. 2ns argument is: `true` means the peer will
  * start sending or continue to send content frames; `false` means it will not.
+ * @method flow
  */
 Channel.prototype.flow = function(active, callback){
   this.client.channel.flow(this.id, active, (err) => {
@@ -125,6 +128,7 @@ Channel.prototype.flow = function(active, callback){
 /**
  * Return is of channel.
  * @return {Number}
+ * @method $getId
  */
 Channel.prototype.$getId = function(){
   return this.id;
@@ -133,6 +137,7 @@ Channel.prototype.$getId = function(){
 /**
  * Return `true` if channel is closed.
  * @return {Boolean}
+ * @method $isClosed
  */
 Channel.prototype.$isClosed = function(){
   return !this.opened;
@@ -141,6 +146,7 @@ Channel.prototype.$isClosed = function(){
 /**
  * Return `true` if channel is opened.
  * @return {Boolean}
+ * @method $isOpened
  */
 Channel.prototype.isOpened = function(){
   return this.opened;
@@ -149,6 +155,7 @@ Channel.prototype.isOpened = function(){
 /**
  * Set confirm mode to arg.
  * @param {Boolean} c `true` if now is im confirm mode.
+ * @method $setConfirmMode
  */
 Channel.prototype.$setConfirmMode = function(c){
   this.confirmMode = c;
@@ -157,6 +164,7 @@ Channel.prototype.$setConfirmMode = function(c){
 /**
  * Check, if channel is in configm mode.
  * @return {Boolean}
+ * $isConfirmMode
  */
 Channel.prototype.$isConfirmMode = function(){
   return this.confirmMode;

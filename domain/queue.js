@@ -24,6 +24,7 @@ var EE = require('events').EventEmitter;
  * @return {Queue}
  * @extends EventEmitter
  * @constructor
+ * @class Queue
  */
 function Queue(client, channel){
   EE.call(this);
@@ -94,6 +95,7 @@ require('util').inherits(Queue, EE);
  * @param {Object} [options.arguments={}] A set of arguments for the declaration.
  *    The syntax and semantics of these arguments depends on the server implementation.
  * @param {Function} callback
+ * @method declare
  */
 Queue.prototype.declare = function(queue, options, callback){
   options = options || {};
@@ -157,6 +159,7 @@ Queue.prototype.declare = function(queue, options, callback){
  * @param {Object} [options.arguments={}] A set of arguments for the declaration.
  *    The syntax and semantics of these arguments depends on the server implementation.
  * @param {Function} callback
+ * @method bind
  */
 Queue.prototype.bind = function(queue, exchange, routingKey, options, callback){
   options = options || {};
@@ -192,6 +195,7 @@ Queue.prototype.bind = function(queue, exchange, routingKey, options, callback){
  * @param {Object} [options.arguments={}] A set of arguments for the declaration.
  *    The syntax and semantics of these arguments depends on the server implementation.
  * @param {Function} callback
+ * @method unbind
  */
 Queue.prototype.unbind = function(queue, exchange, routingKey, options, callback){
   options = options || {};
@@ -226,6 +230,7 @@ Queue.prototype.unbind = function(queue, exchange, routingKey, options, callback
  * @param {Boolean} [options.noWait=false] If set, the server will not respond to the method.
  *    The client should not wait for a reply method.
  * @param {Function} callback
+ * @method purge
  */
 Queue.prototype.purge = function(queue, options, callback){
   options = options || {};
@@ -268,6 +273,7 @@ Queue.prototype.purge = function(queue, options, callback){
  * @param {Boolean} [options.noWait=false] If set, the server will not respond to the method.
  *    The client should not wait for a reply method.
  * @param {Function} callback
+ * @method delete
  */
 Queue.prototype['delete'] = function(queue, options, callback){
   options = options || {};
