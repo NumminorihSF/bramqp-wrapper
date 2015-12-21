@@ -2,6 +2,22 @@
 
 var EE = require('events').EventEmitter;
 
+/**
+ * Work with transactions.
+ *
+ * The Tx class allows publish and ack operations to be batched into atomic units of work.
+ * The intention is that all publish and ack requests issued within a transaction will
+ * complete successfully or none of them will.
+ * Servers SHOULD implement atomic transactions at least where all publish or ack requests
+ * affect a single queue. Transactions that cover multiple queues may be non-atomic,
+ * given that queues can be created and destroyed asynchronously, and such events do not
+ * form part of any transaction. Further, the behaviour of transactions with respect to the
+ * immediate and mandatory flags on Basic.Publish methods is not defined.
+ * @param {BRAMQPClient} client Client object that returns from bramqp#openAMQPCommunication() method.
+ * @param {Channel} channel Channel object (should be opened).
+ * @return {TX}
+ * @constructor
+ */
 function TX(client, channel){
   EE.call(this);
   this.client = client;
@@ -13,6 +29,13 @@ function TX(client, channel){
 
 require('util').inherits(TX, EE);
 
+/**
+ * Select standard transaction mode.
+ * This method sets the channel to use standard transactions.
+ * The client must use this method at least once on a channel before using the Commit or
+ * Rollback methods.
+ * @param {Function} callback
+ */
 TX.prototype.select = function(callback){
   if (!(typeof callback === 'function')){
     callback = (err) => {if (err) this.emit('error', err);};
@@ -24,6 +47,15 @@ TX.prototype.select = function(callback){
   });
 };
 
+/**
+ * Commit the current transaction.
+ *
+ * This method commits all message publications and acknowledgments performed in the current
+ * transaction. A new transaction starts immediately after a commit.
+ * * The client MUST NOT use the Commit method on non-transacted channels.
+ * Error code: precondition-failed
+ * @param {Function} callback
+ */
 TX.prototype.commit = function(callback){
   if (!(typeof callback === 'function')){
     callback = (err) => {if (err) this.emit('error', err);};
@@ -35,6 +67,17 @@ TX.prototype.commit = function(callback){
   });
 };
 
+/**
+ * Abandon the current transaction.
+ *
+ * This method abandons all message publications and acknowledgments performed
+ * in the current transaction. A new transaction starts immediately after a rollback.
+ * Note that unacked messages will not be automatically redelivered by rollback;
+ * if that is required an explicit recover call should be issued.
+ * * The client MUST NOT use the Rollback method on non-transacted channels.
+ * Error code: precondition-failed
+ * @param callback
+ */
 TX.prototype.rollback = function(callback){
   if (!(typeof callback === 'function')){
     callback = (err) => {if (err) this.emit('error', err);};
@@ -62,6 +105,5 @@ TX.prototype._wrap = function(doing, callback){
 TX.prototype._getEventString = function(doing){
   return this.id + ':tx.'+doing+'-ok';
 };
-
 
 module.exports = TX;

@@ -1,4 +1,5 @@
 'use strict';
+
 var DEFAULT_PREFETCH_SIZE = 0;
 var DEFAULT_PREFETCH_COUNT = 10;
 
@@ -18,6 +19,18 @@ var DEFAULT_WAIT_TIMEOUT = 100;
 
 var EE = require('events').EventEmitter;
 
+/**
+ * Work with basic content.
+ *
+ * The Basic class provides methods that support an industry-standard messaging model. Work with channels.
+ *
+ * @class Basic
+ * @extends EventEmitter
+ * @param {BRAMQPClient} client Client object that returns from bramqp#openAMQPCommunication() method.
+ * @param {Channel} channel Channel object (should be opened).
+ * @param {Function} done
+ * @constructor
+ */
 function Basic(client, channel, done){
   EE.call(this);
   this.client = client;
@@ -37,6 +50,39 @@ function Basic(client, channel, done){
 
 require('util').inherits(Basic, EE);
 
+/**
+ * Specify quality of service.
+ *
+ * This method requests a specific quality of service.
+ * The QoS can be specified for the current channel or for all channels on the connection. T
+ * he particular properties and semantics of a qos method always depend on the content
+ * class semantics. Though the qos method could in principle apply to both peers,
+ * it is currently meaningful only for the server.
+ * @param {Object} [options]
+ * @param {Number} [options.prefetchSize=0] The client can request that messages be sent
+ *    in advance so that when the client finishes processing a message,
+ *    the following message is already held locally,
+ *    rather than needing to be sent down the channel.
+ *    Prefetching gives a performance improvement.
+ *    This field specifies the prefetch window size in octets.
+ *    The server will send a message in advance if it is equal to or smaller in size
+ *    than the available prefetch size (and also falls into other prefetch limits).
+ *    May be set to zero, meaning "no specific limit",
+ *    although other prefetch limits may still apply.
+ *    The prefetch-size is ignored if the no-ack option is set.
+ * @param {Number} [options.prefetchCount=10] Specifies a prefetch window in terms of whole messages.
+ *    This field may be used in combination with the prefetch-size field;
+ *    a message will only be sent in advance if both prefetch windows
+ *    (and those at the channel and connection level) allow it.
+ *    The prefetch-count is ignored if the no-ack option is set.
+ * @param {Boolean} [options.global=false] RabbitMQ has reinterpreted this field.
+ *    The original specification said: "By default the QoS settings apply to the current
+ *    channel only. If this field is set, they are applied to the entire connection."
+ *    Instead, RabbitMQ takes global=false to mean that the QoS settings should apply
+ *    per-consumer (for new consumers on the channel; existing ones being unaffected)
+ *    and global=true to mean that the QoS settings should apply per-channel.
+ * @param {Function} callback
+ */
 Basic.prototype.qos = function(options, callback){
   options = options || {};
   callback = arguments[arguments.length-1];
@@ -52,6 +98,47 @@ Basic.prototype.qos = function(options, callback){
   });
 };
 
+/**
+ * Start a queue consumer.
+ *
+ * This method asks the server to start a "consumer", which is a transient request for
+ * messages from a specific queue. Consumers last as long as the channel they were declared on,
+ * or until the client cancels them.
+ *
+ * @param {String} queueName Specifies the name of the queue to consume from.
+ * @param {Object} [options]
+ * @param {String|null} [options.consumerTag=null] Specifies the identifier for the consumer.
+ *    The consumer tag is local to a channel, so two clients can use the same consumer tags.
+ *    If this field is empty the server will generate a unique tag.
+ *    The client MUST NOT specify a tag that refers to an existing consumer.
+ *    Error code: not-allowed
+ *    The consumer tag is valid only within the channel from which the consumer was created.
+ *    I.e. a client MUST NOT create a consumer in one channel and then use it in another.
+ *    Error code: not-allowed
+ * @param {Boolean} [options.noLocal=false] If the no-local field is set the server will not
+ *    send messages to the connection that published them.
+ * @param {Boolean} [options.noAck=false] If this field is set the server does not expect
+ *    acknowledgements for messages. That is, when a message is delivered to the client
+ *    the server assumes the delivery will succeed and immediately dequeues it.
+ *    This functionality may increase performance but at the cost of reliability.
+ *    Messages can get lost if a client dies before they are delivered to the application.
+ * @param {Boolean} [options.exclusive=false] Request exclusive consumer access,
+ *    meaning only this consumer can access the queue.
+ *    * The client MAY NOT gain exclusive access to a queue that already has active consumers.
+ *    Error code: access-refused
+ * @param {Boolean} [options.noWait=false] If set, the server will not respond to the method.
+ *    The client should not wait for a reply method.
+ *    If the server could not complete the method it will raise a channel or
+ *    connection exception.
+ * @param {Object} [options.arguments={}] A set of arguments for the consume.
+ *    The syntax and semantics of these arguments depends on the server implementation.
+ * @param {Function} subscriber All messages will put to this function. 1st argument is content of message.
+ *    2nd arg is headers of messages.
+ *    3rd arg is arguments of message.
+ *    4th arg is options of message.
+ * @param {Function} callback This function will be spawned after subscribe to queue. 1st arg is error if is.
+ *    2nd - consumerTag.
+ */
 Basic.prototype.consume = function(queueName, options, subscriber, callback){
   options = options || {};
   callback = arguments[arguments.length-1];
@@ -95,6 +182,32 @@ Basic.prototype.consume = function(queueName, options, subscriber, callback){
   });
 };
 
+/**
+ * End a queue consumer.
+ *
+ * This method cancels a consumer. This does not affect already delivered messages,
+ * but it does mean the server will not send any more messages for that consumer.
+ * The client may receive an arbitrary number of messages in between sending the cancel
+ * method and receiving the cancel-ok reply.
+ * It may also be sent from the server to the client in the event of the consumer
+ * being unexpectedly cancelled (i.e. cancelled for any reason other than the server
+ * receiving the corresponding basic.cancel from the client).
+ * This allows clients to be notified of the loss of consumers due to events such as
+ * queue deletion. Note that as it is not a MUST for clients to accept this method from
+ * the server, it is advisable for the broker to be able to identify those clients that
+ * are capable of accepting the method, through some means of capability negotiation.
+ *
+ * * If the queue does not exist the server MUST ignore the cancel method,
+ * so long as the consumer tag is valid for that channel.
+ * @param {String} consumerTag Identifier for the consumer, valid within the current channel.
+ * @param {Object} [options]
+ * @param {Boolean} [options.noWait=false] If set, the server will not respond to the method.
+ *    The client should not wait for a reply method.
+ *    If the server could not complete the method it will raise a channel or
+ *    connection exception.
+ * @param {Function} callback
+ * @return {*}
+ */
 Basic.prototype.cancel = function(consumerTag, options, callback){
   callback = arguments[arguments.length-1];
   if (!(typeof callback === 'function')){
@@ -113,6 +226,54 @@ Basic.prototype.cancel = function(consumerTag, options, callback){
   });
 };
 
+/**
+ * Publish a message.
+ *
+ * This method publishes a message to a specific exchange.
+ * The message will be routed to queues as defined by the exchange configuration and
+ * distributed to any active consumers when the transaction, if any, is committed.
+ *
+ * @param {String} exchange=''  Specifies the name of the exchange to publish to.
+ *    The exchange name can be empty, meaning the default exchange.
+ *    If the exchange name is specified, and that exchange does not exist,
+ *    the server will raise a channel exception.
+ *    * The client MUST NOT attempt to publish a content to an exchange that does not exist.
+ *    Error code: not-found.
+ *    * The server MUST accept a blank exchange name to mean the default exchange.
+ *    * If the exchange was declared as an internal exchange, the server MUST raise a
+ *    channel exception with a reply code 403 (access refused).
+ *    * The exchange MAY refuse basic content in which case it MUST raise a
+ *    channel exception with reply code 540 (not implemented).
+ * @param {String} routingKey='' Specifies the routing key for the message.
+ *    The routing key is used for routing messages depending on the exchange configuration.
+ * @param {String} body
+ * @param {Object} [options]
+ * @param {Boolean} [options.mandatory=false] This flag tells the server how to react if the
+ *    message cannot be routed to a queue.
+ *    If this flag is set, the server will return an unroutable message with a Return method.
+ *    If this flag is zero, the server silently drops the message.
+ * @param {Boolean} [options.immediate=false] This flag tells the server how to react if
+ *    the message cannot be routed to a queue consumer immediately.
+ *    If this flag is set, the server will return an undeliverable message with a Return method.
+ *    If this flag is zero, the server will queue the message, but with no guarantee that it
+ *    will ever be consumed.
+ *
+ * @param {String} [options.callbackMechanism='just_callback'] Specify callback mechanism for publishing message.
+ * @param {String} [options.replyTo] Address to reply to.
+ * @param {String} [options.appId] Creating application id.
+ * @param {String} [options.userId] Creating user id.
+ * @param {Date} [options.timestamp] Message timestamp.
+ * @param {String} [options.expiration] Message expiration specification.
+ * @param {String} [options.messageId] Application message identifier.
+ *    By default sets to incremental counter with `_`prefix.
+ * @param {String} [options.correlationId] Application correlation identifier.
+ * @param {String} [options.type] Message type name.
+ * @param {String} [options.contentType] MIME content type.
+ * @param {String} [options.contentEncoding] MIME content encoding.
+ * @param {Object} [headers] User headers to message.
+ * @param {Function} [callback]
+ * @return {*}
+ */
 Basic.prototype.publish = function(exchange, routingKey, body, options, headers, callback){
   callback = arguments[arguments.length-1];
   if (!(typeof callback === 'function')){
@@ -155,6 +316,21 @@ Basic.prototype.publish = function(exchange, routingKey, body, options, headers,
 
 };
 
+/**
+ * Return a failed message.
+ *
+ * This method returns an undeliverable message that was published with the "immediate"
+ * flag set, or an unroutable message published with the "mandatory" flag set.
+ * The reply code and text provide information about the reason that the message
+ * was undeliverable.
+ * @param {Number} replyCode The reply code. The AMQ reply codes are defined as constants
+ * at http://www.rabbitmq.com/amqp-0-9-1-reference.html#constants.
+ * @param {String} replyText The localised reply text. This text can be logged as an aid to resolving issues.
+ * @param {String} exchange Specifies the name of the exchange that the message was originally published to.
+ *    May be empty, meaning the default exchange.
+ * @param {String} routingKey Specifies the routing key name specified when the message was published.
+ * @param {Function} callback
+ */
 Basic.prototype['return'] = function(replyCode, replyText, exchange, routingKey, callback){
   callback = arguments[arguments.length-1];
   if (!(typeof callback === 'function')){
@@ -167,6 +343,24 @@ Basic.prototype['return'] = function(replyCode, replyText, exchange, routingKey,
   this.client.basic.return(this.id, replyCode, replyText, exchange, routingKey, callback);
 };
 
+/**
+ * Direct access to a queue.
+ *
+ * This method provides a direct access to the messages in a queue using a synchronous
+ * dialogue that is designed for specific types of application where synchronous
+ * functionality is more important than performance.
+ * @param {String} queue Specifies the name of the queue to get a message from.
+ * @param {Object} [options]
+ * @param {Boolean} [options.noAck=false] If this field is set the server does not expect
+ *    acknowledgements for messages. That is, when a message is delivered to the client
+ *    the server assumes the delivery will succeed and immediately dequeues it.
+ *    This functionality may increase performance but at the cost of reliability.
+ *    Messages can get lost if a client dies before they are delivered to the application.
+ * @param {Function} callback 1st parameter is error. 2ns - is body of message. Is null - queue is empty.
+ *    3rd arg is headers of messages.
+ *    4th arg is arguments of message.
+ *    5th arg is options of message.
+ */
 Basic.prototype.get = function(queue, options, callback){
   callback = arguments[arguments.length-1];
   if (!(typeof callback === 'function')){
@@ -206,6 +400,34 @@ Basic.prototype.get = function(queue, options, callback){
   });
 };
 
+/**
+ * Acknowledge one or more messages.
+ *
+ * When sent by the client, this method acknowledges one or more messages delivered
+ * via the Deliver or Get-Ok methods.
+ * When sent by server, this method acknowledges one or more messages published with the
+ * Publish method on a channel in confirm mode.
+ * The acknowledgement can be for a single message or a set of messages up to and
+ * including a specific message.
+ * @param {Number} deliveryTag The server-assigned and channel-specific delivery tag.
+ *    * You can found it on properties of consumed message.
+ *    * The delivery tag is valid only within the channel from which the message was received.
+ *    I.e. a client MUST NOT receive a message on one channel and then acknowledge it on another.
+ *    * The server MUST NOT use a zero value for delivery tags.
+ *    Zero is reserved for client use, meaning "all messages so far received".
+ * @param {Object} [options]
+ * @param {Boolean} [options.multiple=false] If set to 1, the delivery tag is treated as
+ *    "up to and including", so that multiple messages can be acknowledged with a single method.
+ *    If set to zero, the delivery tag refers to a single message.
+ *    If the multiple field is 1, and the delivery tag is zero,
+ *    this indicates acknowledgement of all outstanding messages.
+ *    * A message MUST not be acknowledged more than once.
+ *    The receiving peer MUST validate that a non-zero delivery-tag refers
+ *    to a delivered message, and raise a channel exception if this is not the case.
+ *    On a transacted channel, this check MUST be done immediately and not delayed until
+ *    a Tx.Commit. Error code: precondition-failed
+ * @param {Function} callback
+ */
 Basic.prototype.ack = function(deliveryTag, options, callback){
   callback = arguments[arguments.length-1];
   if (!(typeof callback === 'function')){
@@ -219,6 +441,37 @@ Basic.prototype.ack = function(deliveryTag, options, callback){
   this.client.ack(this.id, deliveryTag, multiple, cb(callback));
 };
 
+/**
+ * Reject an incoming message.
+ *
+ * This method allows a client to reject a message.
+ * It can be used to interrupt and cancel large incoming messages,
+ * or return untreatable messages to their original queue.
+ * * The server SHOULD be capable of accepting and process the Reject method
+ * while sending message content with a Deliver or Get-Ok method.
+ * I.e. the server should read and process incoming methods while sending output frames.
+ * To cancel a partially-send content, the server sends a content body frame of size 1
+ * (i.e. with no data except the frame-end octet).
+ * * The server SHOULD interpret this method as meaning that the client is unable
+ * to process the message at this time.
+ * * The client MUST NOT use this method as a means of selecting messages to process.
+ * @param {Number} deliveryTag The server-assigned and channel-specific delivery tag.
+ *    * You can found it on properties of consumed message.
+ *    * The delivery tag is valid only within the channel from which the message was received.
+ *    I.e. a client MUST NOT receive a message on one channel and then acknowledge it on another.
+ *    * The server MUST NOT use a zero value for delivery tags.
+ *    Zero is reserved for client use, meaning "all messages so far received".
+ * @param {Object} [options]
+ * @param {Boolean} [options.requeue=false] If requeue is true, the server will attempt to requeue the message.
+ *    If requeue is false or the requeue attempt fails the messages are discarded or dead-lettered.
+ *    * The server MUST NOT deliver the message to the same client within the context of
+ *    the current channel. The recommended strategy is to attempt to deliver the message
+ *    to an alternative consumer, and if that is not possible,
+ *    to move the message to a dead-letter queue.
+ *    The server MAY use more sophisticated tracking to hold the message on
+ *    the queue and redeliver it to the same client at a later stage.
+ * @param {Function} callback
+ */
 Basic.prototype.reject = function(deliveryTag, options, callback){
   callback = arguments[arguments.length-1];
   if (!(typeof callback === 'function')){
@@ -232,6 +485,20 @@ Basic.prototype.reject = function(deliveryTag, options, callback){
   this.client.reject(this.id, deliveryTag, requeue, cb(callback));
 };
 
+/**
+ * Redeliver unacknowledged messages.
+ *
+ * This method asks the server to redeliver all unacknowledged messages on a specified channel.
+ * Zero or more messages may be redelivered.
+ * This method is deprecated in favour of the synchronous Recover/Recover-Ok.
+ * * The server MUST set the redelivered flag on all messages that are resent.
+ * @param {Object} [options]
+ * @param {Object} [options.requeue=false] If this field is zero,
+ *    the message will be redelivered to the original recipient.
+ *    If this bit is 1, the server will attempt to requeue the message,
+ *    potentially then delivering it to an alternative subscriber.
+ * @param {Function} callback
+ */
 Basic.prototype.recoverAsync = function(options, callback){
   callback = arguments[arguments.length-1];
   if (!(typeof callback === 'function')){
@@ -248,6 +515,19 @@ Basic.prototype.recoverAsync = function(options, callback){
   });
 };
 
+/**
+ * Redeliver unacknowledged messages.
+ *
+ * This method asks the server to redeliver all unacknowledged messages on a specified channel.
+ * Zero or more messages may be redelivered. This method replaces the asynchronous Recover.
+ * * The server MUST set the redelivered flag on all messages that are resent.
+ * @param {Object} [options]
+ * @param {Object} [options.requeue=false] If this field is zero,
+ *    the message will be redelivered to the original recipient.
+ *    If this bit is 1, the server will attempt to requeue the message,
+ *    potentially then delivering it to an alternative subscriber.
+ * @param {Function} callback
+ */
 Basic.prototype.recover = function(options, callback){
   callback = arguments[arguments.length-1];
   if (!(typeof callback === 'function')){
@@ -264,6 +544,53 @@ Basic.prototype.recover = function(options, callback){
   });
 };
 
+/**
+ * Reject one or more incoming messages.
+ *
+ * This method allows a client to reject one or more incoming messages.
+ * It can be used to interrupt and cancel large incoming messages,
+ * or return untreatable messages to their original queue.
+ * This method is also used by the server to inform publishers on channels in
+ * confirm mode of unhandled messages. If a publisher receives this method,
+ * it probably needs to republish the offending messages.
+ * * The server SHOULD be capable of accepting and processing the Nack method while
+ * sending message content with a Deliver or Get-Ok method.
+ * I.e. the server should read and process incoming methods while sending output frames.
+ * To cancel a partially-send content, the server sends a content body frame of size 1
+ * (i.e. with no data except the frame-end octet).
+ * * The server SHOULD interpret this method as meaning that the client is unable
+ * to process the message at this time.
+ * * The client MUST NOT use this method as a means of selecting messages to process.
+ * * A client publishing messages to a channel in confirm mode SHOULD be capable of accepting
+ * and somehow handling the Nack method.
+ * @param {Number} deliveryTag The server-assigned and channel-specific delivery tag.
+ *    * You can found it on properties of consumed message.
+ *    * The delivery tag is valid only within the channel from which the message was received.
+ *    I.e. a client MUST NOT receive a message on one channel and then acknowledge it on another.
+ *    * The server MUST NOT use a zero value for delivery tags.
+ *    Zero is reserved for client use, meaning "all messages so far received".
+ * @param {Object} [options]
+ * @param {Boolean} [options.multiple=false] If set to 1, the delivery tag is treated as
+ *    "up to and including", so that multiple messages can be rejected with a single method.
+ *    If set to zero, the delivery tag refers to a single message.
+ *    If the multiple field is 1, and the delivery tag is zero, this indicates rejection
+ *    of all outstanding messages.
+ *    * A message MUST not be rejected more than once.
+ *    The receiving peer MUST validate that a non-zero delivery-tag refers to an unacknowledged,
+ *    delivered message, and raise a channel exception if this is not the case.
+ *    Error code: precondition-failed
+ * @param {Boolean} [options.requeue=false] If requeue is true, the server will attempt to
+ *    requeue the message. If requeue is false or the requeue attempt fails the
+ *    messages are discarded or dead-lettered.
+ *    Clients receiving the Nack methods should ignore this flag.
+ *    * The server MUST NOT deliver the message to the same client within the context
+ *    of the current channel. The recommended strategy is to attempt to deliver
+ *    the message to an alternative consumer, and if that is not possible,
+ *    to move the message to a dead-letter queue.
+ *    The server MAY use more sophisticated tracking to hold the message on the
+ *    queue and redeliver it to the same client at a later stage.
+ * @param {Function} callback
+ */
 Basic.prototype.nack = function(deliveryTag, options, callback){
   callback = arguments[arguments.length-1];
   if (!(typeof callback === 'function')){
@@ -277,7 +604,6 @@ Basic.prototype.nack = function(deliveryTag, options, callback){
 
   this.client.nack(deliveryTag, multiple, requeue, cb(callback));
 };
-
 
 
 Basic.prototype.$setPublishCallback = function(string){

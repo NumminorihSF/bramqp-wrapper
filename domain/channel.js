@@ -1,12 +1,17 @@
 var EE = require('events').EventEmitter;
 var RabbitClientError = require('./rabbit_client_error');
 var RabbitRouteError = require('./rabbit_route_error');
-//65535
+
 /**
+ * Work with channels.
  *
+ * The channel class provides methods for a client to establish a channel to a server
+ * and for both peers to operate the channel thereafter.
+ *
+ * @class Channel
  * @extends EventEmitter
- * @param {BRAMQPClient} client
- * @param {Number} id
+ * @param {BRAMQPClient} client Client object that returns from bramqp#openAMQPCommunication() method.
+ * @param {Number} id Channel id.
  * @constructor
  */
 function Channel(client, id){
@@ -37,6 +42,13 @@ function Channel(client, id){
 
 require('util').inherits(Channel, EE);
 
+/**
+ * Open a channel for use.
+ *
+ * This method opens a channel to the server.
+ * * The client MUST NOT use this method on an already-opened channel. Error code: channel-error
+ * @param {Function} callback on callback - 1st argument is error.
+ */
 Channel.prototype.open = function(callback){
   this.confirmMode = false;
   this.client.channel.open(this.id, (err) => {
@@ -49,6 +61,19 @@ Channel.prototype.open = function(callback){
   });
 };
 
+/**
+ * Request a channel close.
+ *
+ * This method indicates that the sender wants to close the channel.
+ * This may be due to internal conditions (e.g. a forced shut-down) or due to an
+ * error handling a specific method, i.e. an exception.
+ * When a close is due to an exception, the sender provides the class and method
+ * id of the method which caused the exception.
+ *
+ * * After sending this method, any received methods except Close and Close-OK MUST
+ * be discarded. The response to receiving a Close after sending Close must be to send Close-Ok.
+ * @param {Function} callback on callback - 1st argument is error.
+ */
 Channel.prototype.close = function(callback){
   this.client.channel.close(this.id, (err) => {
     if (err) return callback(err);
@@ -60,6 +85,33 @@ Channel.prototype.close = function(callback){
   });
 };
 
+/**
+ * Enable/disable flow from peer.
+ *
+ * This method asks the peer to pause or restart the flow of content data sent by a consumer.
+ * This is a simple flow-control mechanism that a peer can use to avoid overflowing its
+ * queues or otherwise finding itself receiving more messages than it can process.
+ * Note that this method is not intended for window control.
+ * It does not affect contents returned by Basic.Get-Ok methods.
+ *
+ * * When a new channel is opened, it is active (flow is active).
+ * Some applications assume that channels are inactive until started.
+ * To emulate this behaviour a client MAY open the channel, then pause it.
+ *
+ *
+ * * When sending content frames, a peer SHOULD monitor the channel for incoming methods a
+ * nd respond to a Channel.Flow as rapidly as possible.
+ *
+ * * A peer MAY use the Channel.Flow method to throttle incoming content data for
+ * internal reasons, for example, when exchanging data over a slower connection.
+ *
+ * * The peer that requests a Channel.Flow method MAY disconnect and/or ban a peer
+ * that does not respect the request. This is to prevent badly-behaved clients from
+ * overwhelming a server.
+ * @param {Boolean} active If `true`, the peer starts sending content frames. If `false`, the peer stops sending content frames.
+ * @param {Function} callback on callback - 1st argument is error. 2ns argument is: `true` means the peer will
+ * start sending or continue to send content frames; `false` means it will not.
+ */
 Channel.prototype.flow = function(active, callback){
   this.client.channel.flow(this.id, active, (err) => {
     if (err) return callback(err);
@@ -68,22 +120,42 @@ Channel.prototype.flow = function(active, callback){
   });
 };
 
+/**
+ * Return is of channel.
+ * @return {Number}
+ */
 Channel.prototype.$getId = function(){
   return this.id;
 };
 
+/**
+ * Return `true` if channel is closed.
+ * @return {boolean}
+ */
 Channel.prototype.$isClosed = function(){
   return !this.opened;
 };
 
+/**
+ * Return `true` if channel is opened.
+ * @return {boolean}
+ */
 Channel.prototype.isOpened = function(){
   return this.opened;
 };
 
+/**
+ * Set confirm mode to arg.
+ * @param {Boolean} c `true` if now is im confirm mode.
+ */
 Channel.prototype.$setConfirmMode = function(c){
   this.confirmMode = c;
 };
 
+/**
+ * Check, if channel is in configm mode.
+ * @return {Boolean}
+ */
 Channel.prototype.$isConfirmMode = function(){
   return this.confirmMode;
 };
