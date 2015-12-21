@@ -29,6 +29,7 @@ var EE = require('events').EventEmitter;
  * @param {BRAMQPClient} client Client object that returns from bramqp#openAMQPCommunication() method.
  * @param {Channel} channel Channel object (should be opened).
  * @param {Function} done
+ * @return {Basic}
  * @constructor
  */
 function Basic(client, channel, done){
@@ -206,7 +207,6 @@ Basic.prototype.consume = function(queueName, options, subscriber, callback){
  *    If the server could not complete the method it will raise a channel or
  *    connection exception.
  * @param {Function} callback
- * @return {*}
  */
 Basic.prototype.cancel = function(consumerTag, options, callback){
   callback = arguments[arguments.length-1];
@@ -272,7 +272,6 @@ Basic.prototype.cancel = function(consumerTag, options, callback){
  * @param {String} [options.contentEncoding] MIME content encoding.
  * @param {Object} [headers] User headers to message.
  * @param {Function} [callback]
- * @return {*}
  */
 Basic.prototype.publish = function(exchange, routingKey, body, options, headers, callback){
   callback = arguments[arguments.length-1];

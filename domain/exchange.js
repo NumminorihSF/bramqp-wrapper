@@ -17,6 +17,7 @@ var EE = require('events').EventEmitter;
  *
  * Exchanges match and distribute messages across queues.
  * Exchanges can be configured in the server or declared at runtime.
+ * @extends EventEmitter
  * @param {BRAMQPClient} client Client object that returns from bramqp#openAMQPCommunication() method.
  * @param {Channel} channel Channel object (should be opened).
  * @return {Exchange}

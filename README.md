@@ -66,13 +66,13 @@ Simple example:
 In this example you will try to add 100k messages and you will use only 100 channels wor it.
 
 ## Client
-**Kind**: lib class  
+**Kind**: global class  
 
 * [Client](#Client)
     * [new Client(config)](#new_Client_new)
     * [.connect(callback)](#Client+connect)
     * [.disconnect(cb)](#Client+disconnect)
-    * [.getChannel(callback)](#Client+getChannel) ⇒ <code>\*</code>
+    * [.getChannel(callback)](#Client+getChannel)
 
 <a name="new_Client_new"></a>
 ### new Client(config)
@@ -86,6 +86,8 @@ In this example you will try to add 100k messages and you will use only 100 chan
 | [config.password] | <code>String</code> | <code>&#x27;guest&#x27;</code> | 
 | [config.protocolVersion] | <code>String</code> | <code>&#x27;rabbitmq/full/amqp0-9-1.stripped.extended&#x27;</code> | 
 | [config.vhost] | <code>String</code> | <code>&#x27;/&#x27;</code> | 
+| [config.channelPoolCapacity] | <code>Number</code> | <code>0</code> | 
+| [config.taskPoolCapacity] | <code>Number</code> | <code>0</code> | 
 
 <a name="Client+connect"></a>
 ### client.connect(callback)
@@ -108,7 +110,7 @@ Wait of end of all tasks. After - disconnect.
 | cb | <code>function</code> | 
 
 <a name="Client+getChannel"></a>
-### client.getChannel(callback) ⇒ <code>\*</code>
+### client.getChannel(callback)
 Gets channel from pool. If no channels, will wait until some chan free.
 
 **Kind**: instance method of <code>[Client](#Client)</code>  
@@ -116,7 +118,6 @@ Gets channel from pool. If no channels, will wait until some chan free.
 | Param | Type | Description |
 | --- | --- | --- |
 | callback | <code>function</code> | 1st arguments is error. 2nd argument is object like    `{basic:.., channel:.., confirm:.., exchange:.., queue:.., queue:.., tx:..}`    all methods provided an api of amqp protocol.    3rd argument is done callback to make channel free. |
-
 
 
 ## Classes
@@ -130,15 +131,15 @@ Gets channel from pool. If no channels, will wait until some chan free.
 </dd>
 <dt><a href="#Confirm">Confirm</a></dt>
 <dd></dd>
-<dt><a href="#Exchange">Exchange</a></dt>
+<dt><a href="#Exchange">Exchange</a> ⇐ <code>EventEmitter</code></dt>
 <dd></dd>
-<dt><a href="#Queue">Queue</a></dt>
+<dt><a href="#Queue">Queue</a> ⇐ <code>EventEmitter</code></dt>
 <dd></dd>
-<dt><a href="#RabbitClientError">RabbitClientError</a> ⇐ <code>EventEmitter</code></dt>
+<dt><a href="#RabbitClientError">RabbitClientError</a></dt>
 <dd></dd>
-<dt><a href="#RabbitRouteError">RabbitRouteError</a> ⇐ <code>EventEmitter</code></dt>
+<dt><a href="#RabbitRouteError">RabbitRouteError</a></dt>
 <dd></dd>
-<dt><a href="#TX">TX</a></dt>
+<dt><a href="#TX">TX</a> ⇐ <code>EventEmitter</code></dt>
 <dd></dd>
 </dl>
 
@@ -153,8 +154,8 @@ Basic
     * [new Basic(client, channel, done)](#new_Basic_new)
     * [.qos([options], callback)](#Basic+qos)
     * [.consume(queueName, [options], subscriber, callback)](#Basic+consume)
-    * [.cancel(consumerTag, [options], callback)](#Basic+cancel) ⇒ <code>\*</code>
-    * [.publish(exchange, routingKey, body, [options], [headers], [callback])](#Basic+publish) ⇒ <code>\*</code>
+    * [.cancel(consumerTag, [options], callback)](#Basic+cancel)
+    * [.publish(exchange, routingKey, body, [options], [headers], [callback])](#Basic+publish)
     * [.return(replyCode, replyText, exchange, routingKey, callback)](#Basic+return)
     * [.get(queue, [options], callback)](#Basic+get)
     * [.ack(deliveryTag, [options], callback)](#Basic+ack)
@@ -220,7 +221,7 @@ or until the client cancels them.
 | callback | <code>function</code> |  | This function will be spawned after subscribe to queue. 1st arg is error if is.    2nd - consumerTag. |
 
 <a name="Basic+cancel"></a>
-### basic.cancel(consumerTag, [options], callback) ⇒ <code>\*</code>
+### basic.cancel(consumerTag, [options], callback)
 End a queue consumer.
 
 This method cancels a consumer. This does not affect already delivered messages,
@@ -248,7 +249,7 @@ so long as the consumer tag is valid for that channel.
 | callback | <code>function</code> |  |  |
 
 <a name="Basic+publish"></a>
-### basic.publish(exchange, routingKey, body, [options], [headers], [callback]) ⇒ <code>\*</code>
+### basic.publish(exchange, routingKey, body, [options], [headers], [callback])
 Publish a message.
 
 This method publishes a message to a specific exchange.
@@ -432,18 +433,18 @@ Channel
 **Extends:** <code>EventEmitter</code>  
 
 * [Channel](#Channel) ⇐ <code>EventEmitter</code>
-    * [new Channel(client, id)](#new_Channel_new)
+    * [new Channel(client, id, id)](#new_Channel_new)
     * [.open(callback)](#Channel+open)
     * [.close(callback)](#Channel+close)
     * [.flow(active, callback)](#Channel+flow)
     * [.$getId()](#Channel+$getId) ⇒ <code>Number</code>
-    * [.$isClosed()](#Channel+$isClosed) ⇒ <code>boolean</code>
-    * [.isOpened()](#Channel+isOpened) ⇒ <code>boolean</code>
+    * [.$isClosed()](#Channel+$isClosed) ⇒ <code>Boolean</code>
+    * [.isOpened()](#Channel+isOpened) ⇒ <code>Boolean</code>
     * [.$setConfirmMode(c)](#Channel+$setConfirmMode)
     * [.$isConfirmMode()](#Channel+$isConfirmMode) ⇒ <code>Boolean</code>
 
 <a name="new_Channel_new"></a>
-### new Channel(client, id)
+### new Channel(client, id, id)
 Work with channels.
 
 The channel class provides methods for a client to establish a channel to a server
@@ -453,6 +454,7 @@ and for both peers to operate the channel thereafter.
 | Param | Type | Description |
 | --- | --- | --- |
 | client | <code>BRAMQPClient</code> | Client object that returns from bramqp#openAMQPCommunication() method. |
+| id | <code>Number</code> | Channel id. |
 | id | <code>Number</code> | Channel id. |
 
 <a name="Channel+open"></a>
@@ -525,12 +527,12 @@ Return is of channel.
 
 **Kind**: instance method of <code>[Channel](#Channel)</code>  
 <a name="Channel+$isClosed"></a>
-### channel.$isClosed() ⇒ <code>boolean</code>
+### channel.$isClosed() ⇒ <code>Boolean</code>
 Return `true` if channel is closed.
 
 **Kind**: instance method of <code>[Channel](#Channel)</code>  
 <a name="Channel+isOpened"></a>
-### channel.isOpened() ⇒ <code>boolean</code>
+### channel.isOpened() ⇒ <code>Boolean</code>
 Return `true` if channel is opened.
 
 **Kind**: instance method of <code>[Channel](#Channel)</code>  
@@ -594,10 +596,11 @@ The client can only use this method on a non-transactional channel.
 | callback | <code>function</code> |  |  |
 
 <a name="Exchange"></a>
-## Exchange
+## Exchange ⇐ <code>EventEmitter</code>
 **Kind**: global class  
+**Extends:** <code>EventEmitter</code>  
 
-* [Exchange](#Exchange)
+* [Exchange](#Exchange) ⇐ <code>EventEmitter</code>
     * [new Exchange(client, channel)](#new_Exchange_new)
     * [.declare(exchange, [type], [options], callback)](#Exchange+declare)
     * [.delete(exchange, [options], callback)](#Exchange+delete)
@@ -704,10 +707,11 @@ If a unbind fails, the server MUST raise a connection exception.
 | callback | <code>function</code> |  |  |
 
 <a name="Queue"></a>
-## Queue
+## Queue ⇐ <code>EventEmitter</code>
 **Kind**: global class  
+**Extends:** <code>EventEmitter</code>  
 
-* [Queue](#Queue)
+* [Queue](#Queue) ⇐ <code>EventEmitter</code>
     * [new Queue(client, channel)](#new_Queue_new)
     * [.declare(queue, [options], callback)](#Queue+declare)
     * [.bind(queue, exchange, routingKey, [options], callback)](#Queue+bind)
@@ -846,9 +850,8 @@ back to an active queue.
 | callback | <code>function</code> |  |  |
 
 <a name="RabbitClientError"></a>
-## RabbitClientError ⇐ <code>EventEmitter</code>
+## RabbitClientError
 **Kind**: global class  
-**Extends:** <code>EventEmitter</code>  
 <a name="new_RabbitClientError_new"></a>
 ### new RabbitClientError(errorObject)
 
@@ -857,9 +860,8 @@ back to an active queue.
 | errorObject | <code>Object</code> | Object, that RabbitMq returns. |
 
 <a name="RabbitRouteError"></a>
-## RabbitRouteError ⇐ <code>EventEmitter</code>
+## RabbitRouteError
 **Kind**: global class  
-**Extends:** <code>EventEmitter</code>  
 <a name="new_RabbitRouteError_new"></a>
 ### new RabbitRouteError(errorObject)
 
@@ -868,10 +870,11 @@ back to an active queue.
 | errorObject | <code>Object</code> | Object, that RabbitMq returns. |
 
 <a name="TX"></a>
-## TX
+## TX ⇐ <code>EventEmitter</code>
 **Kind**: global class  
+**Extends:** <code>EventEmitter</code>  
 
-* [TX](#TX)
+* [TX](#TX) ⇐ <code>EventEmitter</code>
     * [new TX(client, channel)](#new_TX_new)
     * [.select(callback)](#TX+select)
     * [.commit(callback)](#TX+commit)
@@ -940,9 +943,6 @@ Error code: precondition-failed
 | Param |
 | --- |
 | callback | 
-
-
-
 
 
 

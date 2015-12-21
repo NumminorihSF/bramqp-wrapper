@@ -13,6 +13,7 @@ var EE = require('events').EventEmitter;
  * given that queues can be created and destroyed asynchronously, and such events do not
  * form part of any transaction. Further, the behaviour of transactions with respect to the
  * immediate and mandatory flags on Basic.Publish methods is not defined.
+ * @extends EventEmitter
  * @param {BRAMQPClient} client Client object that returns from bramqp#openAMQPCommunication() method.
  * @param {Channel} channel Channel object (should be opened).
  * @return {TX}

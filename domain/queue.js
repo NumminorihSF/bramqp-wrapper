@@ -22,6 +22,7 @@ var EE = require('events').EventEmitter;
  * @param {BRAMQPClient} client Client object that returns from bramqp#openAMQPCommunication() method.
  * @param {Channel} channel Channel object (should be opened).
  * @return {Queue}
+ * @extends EventEmitter
  * @constructor
  */
 function Queue(client, channel){

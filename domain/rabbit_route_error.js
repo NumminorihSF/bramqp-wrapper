@@ -1,6 +1,5 @@
 /**
  *
- * @extends EventEmitter
  * @param {Object} errorObject Object, that RabbitMq returns.
  * @return {RabbitRouteError}
  * @constructor

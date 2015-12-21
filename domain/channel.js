@@ -12,6 +12,8 @@ var RabbitRouteError = require('./rabbit_route_error');
  * @extends EventEmitter
  * @param {BRAMQPClient} client Client object that returns from bramqp#openAMQPCommunication() method.
  * @param {Number} id Channel id.
+ * @param {Number} id Channel id.
+ * @return {Channel}
  * @constructor
  */
 function Channel(client, id){
@@ -130,7 +132,7 @@ Channel.prototype.$getId = function(){
 
 /**
  * Return `true` if channel is closed.
- * @return {boolean}
+ * @return {Boolean}
  */
 Channel.prototype.$isClosed = function(){
   return !this.opened;
@@ -138,7 +140,7 @@ Channel.prototype.$isClosed = function(){
 
 /**
  * Return `true` if channel is opened.
- * @return {boolean}
+ * @return {Boolean}
  */
 Channel.prototype.isOpened = function(){
   return this.opened;
