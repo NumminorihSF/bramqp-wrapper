@@ -121,6 +121,16 @@ Gets channel from pool. If no channels, will wait until some chan free.
 | --- | --- | --- |
 | callback | <code>function</code> | 1st arguments is error. 2nd argument is object like    `{basic:.., channel:.., confirm:.., exchange:.., queue:.., queue:.., tx:..}`    all methods provided an api of amqp protocol.    3rd argument is done callback to make channel free. |
 
+<a name="Client+getChannelDirect"></a>
+### client.getChannelDirect(callback)
+Gets channel from pool. If no channels, will return error. Mark channel busy, but dos not increment counter of tasks in work.
+
+**Kind**: instance method of <code>[Client](#Client)</code>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| callback | <code>function</code> | 1st arguments is error. 2nd argument is object like    `{basic:.., channel:.., confirm:.., exchange:.., queue:.., queue:.., tx:..}`    all methods provided an api of amqp protocol.    3rd argument is done callback to make channel free. |
+
 
 ## Classes
 
