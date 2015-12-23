@@ -1,4 +1,4 @@
-##0.9.1-2
+##0.10.0
 API change:
 
 * In `basic#consume()` and `basic#get()` methods, options and arguments on 
