@@ -136,8 +136,8 @@ Basic.prototype.qos = function(options, callback){
  *    The syntax and semantics of these arguments depends on the server implementation.
  * @param {Function} subscriber All messages will put to this function. 1st argument is content of message.
  *    2nd arg is headers of messages.
- *    3rd arg is arguments of message.
- *    4th arg is options of message.
+ *    3rd arg is options of message.
+ *    4th arg is arguments of message.
  * @param {Function} callback This function will be spawned after subscribe to queue. 1st arg is error if is.
  *    2nd - consumerTag.
  * @method consume
@@ -171,7 +171,7 @@ Basic.prototype.consume = function(queueName, options, subscriber, callback){
         this.client.once('content', (_channel, className, options, content) => {
           var headers = options.headers || {};
           delete options.headers;
-          return subscriber(content, headers, options, properties);
+          return subscriber(content, headers, properties, options);
         });
       }.bind(this);
       this.client.on(this.id + ':basic.deliver', onMessage);
@@ -362,8 +362,8 @@ Basic.prototype['return'] = function(replyCode, replyText, exchange, routingKey,
  *    Messages can get lost if a client dies before they are delivered to the application.
  * @param {Function} callback 1st parameter is error. 2ns - is body of message. Is null - queue is empty.
  *    3rd arg is headers of messages.
- *    4th arg is arguments of message.
- *    5th arg is options of message.
+ *    4th arg is options of message.
+ *    5th arg is arguments of message.
  * @method get
  */
 Basic.prototype.get = function(queue, options, callback){
@@ -396,7 +396,7 @@ Basic.prototype.get = function(queue, options, callback){
         this.channel.removeListener('close', error);
         var headers = options.headers || {};
         delete options.headers;
-        return callback(null, content, headers, options, properties);
+        return callback(null, content, headers, properties, options);
       });
     }.bind(this);
     this.client.once(this.id + ':basic.get-empty', successEmpty);
@@ -444,7 +444,7 @@ Basic.prototype.ack = function(deliveryTag, options, callback){
 
   var cb = this._getPCb();
 
-  this.client.ack(this.id, deliveryTag, multiple, cb(callback));
+  this.client.basic.ack(this.id, deliveryTag, multiple, cb(callback));
 };
 
 /**
@@ -489,7 +489,7 @@ Basic.prototype.reject = function(deliveryTag, options, callback){
 
   var cb = this._getPCb();
 
-  this.client.reject(this.id, deliveryTag, requeue, cb(callback));
+  this.client.basic.reject(this.id, deliveryTag, requeue, cb(callback));
 };
 
 /**
@@ -515,7 +515,7 @@ Basic.prototype.recoverAsync = function(options, callback){
 
   var requeue = typeof options === 'boolean' ? options : 'requeue' in options ? !!options.requeue : DEFAULT_REQUEUE;
 
-  this.client['recover-async'](this.id, requeue, (err) => {
+  this.client.basic['recover-async'](this.id, requeue, (err) => {
     if (err){
       return callback(err);
     }
@@ -545,7 +545,7 @@ Basic.prototype.recover = function(options, callback){
 
   var requeue = typeof options === 'boolean' ? options : 'requeue' in options ? !!options.requeue : DEFAULT_REQUEUE;
 
-  this.client.recover(this.id, requeue, (err) => {
+  this.client.basic.recover(this.id, requeue, (err) => {
     if (err){
       return callback(err);
     }
@@ -612,7 +612,7 @@ Basic.prototype.nack = function(deliveryTag, options, callback){
 
   var cb = this._getPCb();
 
-  this.client.nack(deliveryTag, multiple, requeue, cb(callback));
+  this.client.basic.nack(deliveryTag, multiple, requeue, cb(callback));
 };
 
 /**

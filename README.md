@@ -13,6 +13,7 @@ Dependencies:
  
 *Be careful!* not implemented usage of noWait flag.
 
+[Changelog](https://github.com/NumminorihSF/bramqp-wrapper/blob/master/changelog.md)
 
 # Usage
 
