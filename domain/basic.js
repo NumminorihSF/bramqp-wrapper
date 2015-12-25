@@ -332,10 +332,11 @@ Basic.prototype.publish = function(exchange, routingKey, body, options, headers,
  * @param {String} exchange Specifies the name of the exchange that the message was originally published to.
  *    May be empty, meaning the default exchange.
  * @param {String} routingKey Specifies the routing key name specified when the message was published.
+ * @param {String} body Body of message, was returned.
  * @param {Function} callback
  * @method return
  */
-Basic.prototype['return'] = function(replyCode, replyText, exchange, routingKey, callback){
+Basic.prototype['return'] = function(replyCode, replyText, exchange, routingKey, body, callback){
   callback = arguments[arguments.length-1];
   if (!(typeof callback === 'function')){
     callback = (err) => {if (err) this.emit('error', err)};
@@ -344,7 +345,16 @@ Basic.prototype['return'] = function(replyCode, replyText, exchange, routingKey,
   exchange = exchange || '';
   routingKey = routingKey || '';
 
-  this.client.basic.return(this.id, replyCode, replyText, exchange, routingKey, callback);
+  this.client.basic.return(this.id, replyCode, replyText, exchange, routingKey, (err)=>{
+    if (err) {
+      return callback(err);
+    }
+    this.client.content(this.id, 'basic', {}, body, (err) => {
+        if (err) return callback(err);
+        callback();
+    });
+  });
+
 };
 
 /**

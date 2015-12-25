@@ -1,3 +1,11 @@
+##0.10.1
+
+API change:
+
+* `basic#return()` now need body of message.
+
+
+
 ##0.10.0
 API change:
 

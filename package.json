@@ -5,7 +5,11 @@
   "dependencies": {
     "bramqp": "^0.3.7"
   },
-  "scripts": {},
+  "scripts": {
+    "prepub": "babel -d out --ignore node_modules ./; cp ./* out/; cd out",
+    "postpub": "cd ..",
+    "pub": "npm publish"
+  },
   "main": "lib/client",
   "repository": {
     "type": "git",
