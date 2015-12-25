@@ -296,7 +296,7 @@ distributed to any active consumers when the transaction, if any, is committed.
 | [callback] | <code>function</code> |  |  |
 
 <a name="Basic+return"></a>
-### basic.return(replyCode, replyText, exchange, routingKey, callback)
+### basic.return(replyCode, replyText, exchange, routingKey, body, callback)
 Return a failed message.
 
 This method returns an undeliverable message that was published with the "immediate"
@@ -312,7 +312,8 @@ was undeliverable.
 | replyText | <code>String</code> | The localised reply text. This text can be logged as an aid to resolving issues. |
 | exchange | <code>String</code> | Specifies the name of the exchange that the message was originally published to.    May be empty, meaning the default exchange. |
 | routingKey | <code>String</code> | Specifies the routing key name specified when the message was published. |
-| callback | <code>function</code> |  |
+| body | <code>String</code> | Specifies the routing key name specified when the message was published. |
+| callback | <code>function</code> | Body of message, was returned. |
 
 <a name="Basic+get"></a>
 ### basic.get(queue, [options], callback)
