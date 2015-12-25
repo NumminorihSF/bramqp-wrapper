@@ -622,7 +622,7 @@ Basic.prototype.nack = function(deliveryTag, options, callback){
 
   var cb = this._getPCb();
 
-  this.client.basic.nack(deliveryTag, multiple, requeue, cb(callback));
+  this.client.basic.nack(this.id, deliveryTag, multiple, requeue, cb(callback));
 };
 
 /**

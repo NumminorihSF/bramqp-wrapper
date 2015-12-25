@@ -2,7 +2,13 @@
 
 API change:
 
-* `basic#return()` now need body of message.
+* `basic#return()` now need body of message. Without body server will raise exception.
+
+Fix:
+
+* `basic#return()` now has correct usage.
+
+* Fix `basic#nack()` usage. 
 
 
 
