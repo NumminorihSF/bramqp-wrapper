@@ -175,7 +175,7 @@ Channel.prototype._wrap = function(doing, callback){
     return callback(err);
   }.bind(this);
   var success = function () {
-    this.channel.removeListener('close', error);
+    this.removeListener('close', error);
     return callback();
   }.bind(this);
   this.client.once(this._getEventString(doing), success);
