@@ -96,11 +96,11 @@ TX.prototype.rollback = function(callback){
 
 TX.prototype._wrap = function(doing, callback){
   var error = function (err){
-    this.removeListener(this._getEventString(doing), success);
+    this.client.removeListener(this._getEventString(doing), success);
     return callback(err);
   }.bind(this);
   var success = function (a,b,c) {
-    this.removeListener('close', error);
+    this.channel.removeListener('close', error);
     return callback(null,a,b,c);
   }.bind(this);
   this.client.once(this._getEventString(doing), success);

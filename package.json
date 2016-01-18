@@ -1,6 +1,6 @@
 {
   "name": "bramqp-wrapper",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "Wrapper of bramqp lib for some easy work with protocol. Has a connection pool.",
   "dependencies": {
     "bramqp": "^0.3.7"

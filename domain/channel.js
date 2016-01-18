@@ -171,11 +171,11 @@ Channel.prototype.$isConfirmMode = function(){
 
 Channel.prototype._wrap = function(doing, callback){
   var error = function (err){
-    this.removeListener(this._getEventString(doing), success);
+    this.client.removeListener(this._getEventString(doing), success);
     return callback(err);
   }.bind(this);
   var success = function () {
-    this.removeListener('close', error);
+    this.channel.removeListener('close', error);
     return callback();
   }.bind(this);
   this.client.once(this._getEventString(doing), success);
