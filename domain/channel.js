@@ -34,7 +34,7 @@ function Channel(client, id){
   };
   this.client.once(this.id+':channel.close', work);
   this.once('close', ()=>{
-    this.removeListener('close', work);
+    this.client.removeListener(this.id+':channel.close', work);
   });
   this.client.on(this.id+':basic.return', (id, method, err) => {
     var error = new RabbitRouteError(err);
