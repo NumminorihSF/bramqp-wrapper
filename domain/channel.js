@@ -32,17 +32,19 @@ function Channel(client, id){
       });
     }
   };
-  this.client.once(this.id+':channel.close', work);
-  this.once('close', ()=>{
-    this.client.removeListener(this.id+':channel.close', work);
-  });
-  this.client.on(this.id+':basic.return', (id, method, err) => {
+  var returning = (id, method, err) => {
     var error = new RabbitRouteError(err);
     this.emit('return', error, this.id);
     if (error) {
       this.emit('error', error);
     }
+  };
+  this.client.once(this.id+':channel.close', work);
+  this.once('close', ()=>{
+    this.client.removeListener(this.id+':channel.close', work);
+    this.client.removeListener(this.id+':basic.return', returning);
   });
+  this.client.on(this.id+':basic.return', returning);
 }
 
 require('util').inherits(Channel, EE);
