@@ -21,7 +21,7 @@ function Channel(client, id){
   this.id = id;
   this.opened = false;
   this.confirmMode = false;
-  this.client.once(this.id+':channel.close', (id, method, err) => {
+  var work = (id, method, err) => {
     this.opened = false;
     var error = new RabbitClientError(err);
     this.emit('close', error, this.id);
@@ -31,6 +31,10 @@ function Channel(client, id){
         if (err) this.emit('error', err);
       });
     }
+  };
+  this.client.once(this.id+':channel.close', work);
+  this.once('close', ()=>{
+    this.removeListener('close', work);
   });
   this.client.on(this.id+':basic.return', (id, method, err) => {
     var error = new RabbitRouteError(err);

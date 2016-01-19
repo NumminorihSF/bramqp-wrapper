@@ -1,3 +1,7 @@
+##0.10.4
+
+Fig bug with double `channel.once` usage.
+
 ##0.10.3
 
 Fix bug with spawning callbacks, then already was callbacked. 
