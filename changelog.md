@@ -1,3 +1,16 @@
+##0.10.8
+
+API change:
+
+* Client#Basic#publish() now work on 1 event loop. So you can use 1 channel in `for(){}` loop. 
+But it is not really recommended.
+* Add Client events: connect, disconnect, amqp-full.
+
+Fix:
+
+* Fix client close error.
+ 
+
 ##0.10.4
 
 Fig bug with double `channel.once` usage.

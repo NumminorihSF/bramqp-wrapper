@@ -1,14 +1,14 @@
 {
   "name": "bramqp-wrapper",
-  "version": "0.10.7",
-  "description": "Wrapper of bramqp lib for some easy work with protocol. Has a connection pool.",
+  "version": "0.10.8",
+  "description": "Wrapper of bramqp lib for some easy work with protocol. Has a channel pool.",
   "dependencies": {
     "bramqp": "^0.3.7"
   },
   "scripts": {
-    "prepub": "babel -d out --ignore node_modules ./; cp ./* out/; cd out",
+    "prepub": "gulp",
     "postpub": "cd ..",
-    "pub": "npm publish"
+    "pub": "cd out; npm publish"
   },
   "main": "lib/client",
   "repository": {
@@ -27,5 +27,10 @@
   "bugs": {
     "url": "https://github.com/NumminorihSF/bramqp-wrapper/issues"
   },
-  "homepage": "https://github.com/NumminorihSF/bramqp-wrapper#readme"
+  "homepage": "https://github.com/NumminorihSF/bramqp-wrapper#readme",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.5.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2"
+  }
 }

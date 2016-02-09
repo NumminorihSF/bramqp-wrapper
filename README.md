@@ -135,6 +135,28 @@ Gets channel from pool. If no channels, will return error. Mark channel busy, bu
 | callback | <code>function</code> | 1st arguments is error. 2nd argument is object like    `{basic:.., channel:.., confirm:.., exchange:.., queue:.., queue:.., tx:..}`    all methods provided an api of amqp protocol.    3rd argument is done callback to make channel free. |
 
 
+### Client events
+
+#### "connect"
+
+Client object emits this event after opening socket and success authorisation on AMQP server. 
+
+#### "disconnect"
+
+Client object emits this event then socket is closed. It does not mean, that, you should create new connection manually.
+By default, client will reconnect after 5 seconds. To prevent this behaviour, just call 
+```js
+client.disconnect(() => {
+  //and now, if you want, spawn:
+  client.connect(()=>{}); 
+});
+``` 
+
+#### "amqp-full"
+
+Client object emits this event then AMQP server start rejecting messages, because it has no memory to get message. 
+
+
 ## Classes
 
 <dl>
