@@ -1,3 +1,7 @@
+##0.10.9
+
+Now use babel to backward capability with old node.js versions.
+
 ##0.10.8
 
 API change:

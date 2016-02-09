@@ -3,7 +3,7 @@ bramqp-wrapper
 
 Wrapper of bramqp lib to make easy access to amqp protocol.
 
-**ES2015 syntax is used.**
+**ES2015 syntax in npm repo is not used now.**
 
 Install with:
 
