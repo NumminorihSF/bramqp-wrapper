@@ -308,15 +308,11 @@ Basic.prototype.publish = function(exchange, routingKey, body, options, headers,
     return callback();
   });
 
-  this.client.basic.publish(this.id, exchange, routingKey, mandatory, immediate, (err) => {
-    if (err) return callback(err);
-    var realHeaders = this._getRealHeaders(options, h);
-    this.client.content(this.id, 'basic', realHeaders, body, (err) => {
-      if (err) return callback(err);
-      cb();
-    });
-  });
+  var realHeaders = this._getRealHeaders(options, h);
 
+  this.client.basic.publish(this.id, exchange, routingKey, mandatory, immediate, realHeaders, body, (err) => {
+    return cb(err);
+  });
 };
 
 /**
