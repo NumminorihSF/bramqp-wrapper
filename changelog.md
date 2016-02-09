@@ -1,3 +1,7 @@
+##0.11.1
+
+Fix bug with reconnect (no callback specified).
+
 ##0.11.0
 
 Change bramqp version to new, with fixes.
