@@ -1,3 +1,13 @@
+##0.11.0
+
+Change bramqp version to new, with fixes.
+
+API change:
+
+* Add Client events: `amqp-blocked`, `amqp-unblocked`.
+* Remove Client event `amqp-full`
+
+
 ##0.10.9
 
 Now use babel to backward capability with old node.js versions.
@@ -8,7 +18,7 @@ API change:
 
 * Client#Basic#publish() now work on 1 event loop. So you can use 1 channel in `for(){}` loop. 
 But it is not really recommended.
-* Add Client events: connect, disconnect, amqp-full.
+* Add Client events: `connect`, `disconnect`, `amqp-full`.
 
 Fix:
 

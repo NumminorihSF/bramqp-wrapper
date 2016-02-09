@@ -152,9 +152,13 @@ client.disconnect(() => {
 });
 ``` 
 
-#### "amqp-full"
+#### "amqp-blocked"
 
 Client object emits this event then AMQP server start rejecting messages, because it has no memory to get message. 
+
+#### "amqp-unblocked"
+
+Client object emits this event then AMQP server start resieving messages after amqp-bocked.
 
 
 ## Classes

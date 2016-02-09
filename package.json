@@ -1,9 +1,9 @@
 {
   "name": "bramqp-wrapper",
-  "version": "0.10.9",
+  "version": "0.11.0",
   "description": "Wrapper of bramqp lib for some easy work with protocol. Has a channel pool.",
   "dependencies": {
-    "bramqp": "^0.3.7"
+    "bramqp": "^0.4.0"
   },
   "scripts": {
     "prepub": "gulp",
