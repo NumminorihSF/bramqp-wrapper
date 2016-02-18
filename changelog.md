@@ -1,3 +1,8 @@
+## 0.12.0
+
+Add `Client#getChannelOnConnect()` method, that works like `Client#getChannel()`, but if Client is not connected,
+will wait, until connect.
+
 ##0.11.1
 
 Fix bug with reconnect (no callback specified).

@@ -78,6 +78,7 @@ In this example you will try to add 100k messages and you will use only 100 chan
     * [.connect(callback)](#Client+connect)
     * [.disconnect(cb)](#Client+disconnect)
     * [.getChannel(callback)](#Client+getChannel)
+    * [.getChannelOnConnect(callback)](#Client+getChannel)
 
 <a name="new_Client_new"></a>
 ### new Client(config)
@@ -114,9 +115,20 @@ Wait of end of all tasks. After - disconnect.
 | --- | --- |
 | cb | <code>function</code> | 
 
+
 <a name="Client+getChannel"></a>
 ### client.getChannel(callback)
 Gets channel from pool. If no channels, will wait until some chan free.
+
+**Kind**: instance method of <code>[Client](#Client)</code>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| callback | <code>function</code> | 1st arguments is error. 2nd argument is object like    `{basic:.., channel:.., confirm:.., exchange:.., queue:.., queue:.., tx:..}`    all methods provided an api of amqp protocol.    3rd argument is done callback to make channel free. |
+
+<a name="Client+getChannel"></a>
+### client.getChannelOnConnect(callback)
+Gets channel from pool. If no channels, will wait until some chan free. If client is disconnected, will wait until connect.
 
 **Kind**: instance method of <code>[Client](#Client)</code>  
 
