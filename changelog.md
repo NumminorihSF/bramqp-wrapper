@@ -1,3 +1,7 @@
+## 0.12.2
+
+Fix spawning error on `Client#getChannel()` if client is in process of connect.
+
 ## 0.12.0
 
 Add `Client#getChannelOnConnect()` method, that works like `Client#getChannel()`, but if Client is not connected,
